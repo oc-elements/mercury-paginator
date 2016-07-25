@@ -235,6 +235,15 @@ Example:
     is: 'mercury-paginator',
 
     properties: {
+
+        asyncLoad: {
+            type: Boolean
+        },
+
+        totalItems: {
+            type: Number
+        },
+
         /**
          * The `perpage` attribute defines the number
          * of items to show per page
@@ -493,7 +502,17 @@ Example:
      * @method getPageCount
      */
     getPageCount: function () {
-        return this.count ? Math.ceil( this.count / this.perpage ) - 1 : Math.ceil( this.data.length / this.perpage ) - 1;
+        var pageCount;
+
+        if(this.asyncLoad) {
+            pageCount  = this.totalItems ? Math.ceil( this.totalItems / this.perpage ) - 1 : Math.ceil( this.data.length / this.perpage ) - 1;
+            console.log(this.totalItems)
+        } else {
+            pageCount =  this.count ? Math.ceil( this.count / this.perpage ) - 1 : Math.ceil( this.data.length / this.perpage ) - 1;
+        }
+
+
+        return pageCount;
     },
 
     /**
@@ -505,10 +524,11 @@ Example:
     _currentPageChanged: function () {
         if(!this.count){
             this.set('items', this.filterPage());
+
         }
 
         this.currentRange = this.range();
-        this.toogleActive();
+        this.toggleActive();
 
         this.fire('pager-change', {
             page: this.currentpage,
@@ -518,6 +538,7 @@ Example:
     },
 
     range: function () {
+
         var paginations = [],
             i,
             pageCount = this.getPageCount();
@@ -561,7 +582,7 @@ Example:
         return this.data.slice(this.currentpage * this.perpage, (this.currentpage * this.perpage) + this.perpage);
     },
 
-    toogleActive: function(){
+    toggleActive: function(){
         var list = this.$.paginationlist.children;
         this.clearActive(list);
         this.applyActive(list);
